@@ -3,7 +3,7 @@ package com.sparcs10.demo.controller;
 import com.sparcs10.demo.dto.QuestDTO;
 import com.sparcs10.demo.service.QuestService;
 import com.sparcs10.demo.utils.CustomResponse;
-import com.sparcs10.demo.utils.QuestCreateRequest;
+import com.sparcs10.demo.controller.requestDto.QuestCreateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

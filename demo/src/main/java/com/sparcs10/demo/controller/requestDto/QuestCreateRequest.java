@@ -1,7 +1,7 @@
-package com.sparcs10.demo.utils;
+package com.sparcs10.demo.controller.requestDto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sparcs10.demo.utils.Reward;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

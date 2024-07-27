@@ -1,5 +1,6 @@
 package com.sparcs10.demo.service;
 
+import com.sparcs10.demo.controller.requestDto.TrashcanCreateRequest;
 import com.sparcs10.demo.dto.TrashcanDTO;
 import com.sparcs10.demo.entity.Trashcan;
 import com.sparcs10.demo.repository.TrashcanRepository;
@@ -20,8 +21,13 @@ public class TrashcanService {
                 .collect(Collectors.toList());
     }
 
-    public TrashcanDTO create(String address, List<String> trashTypes){
-        String types = String.join(",", trashTypes);
-        return TrashcanDTO.fromEntity(trashcanRepository.save(new Trashcan(address, types)));
+    public TrashcanDTO create(TrashcanCreateRequest request) {
+        List<String> types = List.of(request.getTypes().split("-"));
+        Trashcan trashcan = Trashcan.builder()
+                .address(request.getAddress())
+                .types(String.join(",", types))
+                .build();
+        trashcanRepository.save(trashcan);
+        return TrashcanDTO.fromEntity(trashcan);
     }
 }

@@ -1,10 +1,9 @@
 package com.sparcs10.demo.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparcs10.demo.dto.QuestDTO;
 import com.sparcs10.demo.entity.Quest;
 import com.sparcs10.demo.repository.QuestRepository;
-import com.sparcs10.demo.utils.QuestCreateRequest;
+import com.sparcs10.demo.controller.requestDto.QuestCreateRequest;
 import com.sparcs10.demo.utils.Reward;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

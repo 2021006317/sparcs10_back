@@ -1,6 +1,6 @@
 package com.sparcs10.demo.entity;
 
-import com.sparcs10.demo.utils.QuestCreateRequest;
+import com.sparcs10.demo.controller.requestDto.QuestCreateRequest;
 import com.sparcs10.demo.utils.Reward;
 import jakarta.persistence.*;
 import lombok.Builder;
