@@ -48,7 +48,7 @@ public class TrashcanService {
         return TrashcanDTO.fromEntity(trashcan);
     }
 
-    public TrashcanDTO nearestTrashcan(double currentLatitude, double currentLongitude) throws JsonProcessingException { // 위도, 경도
+    public TrashcanDTO nearestTrashcan(double currentLatitude, double currentLongitude) { // 위도, 경도
         /*
         * 1. 주어진 위도, 경도를 주소로 변환한다.
         * 2. 주소를 기반으로 같은 시, 구에 있는 쓰레기통을 추린다.
@@ -57,8 +57,14 @@ public class TrashcanService {
         * 5. 가장 가까운 쓰레기통을 반환한다.
         * 6. 만약 쓰레기통이 없다면 null을 반환한다.
          */
-        String address = convertCordToGeo(currentLatitude, currentLongitude);
-        String[] addressArr = address.split(" ");
+        String address = null;
+        try {
+            address = convertCordToGeo(currentLatitude, currentLongitude);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+
+        String[] addressArr = address.split(" "); // 이게 공백으로 나눠지는게 맞는지 확인해야함.
         String city = addressArr[0];
         String district = addressArr[1];
         List<TrashcanDTO> trashcanList = null;
