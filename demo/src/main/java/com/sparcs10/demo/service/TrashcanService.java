@@ -70,7 +70,7 @@ public class TrashcanService {
             trashcanList = trashcanRepository.findByAddressContaining(city).stream()
                     .map(TrashcanDTO::fromEntity)
                     .collect(Collectors.toList());
-A        } if (trashcanList.isEmpty()) {
+        } if (trashcanList.isEmpty()) {
             return null;
         }
 
