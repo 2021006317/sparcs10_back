@@ -11,5 +11,5 @@ public interface TrashcanRepository extends JpaRepository<Trashcan, String> {
     Trashcan findByAddress(String address);
 
     List<Trashcan> findByAddressContaining(String city);
-    List<Trashcan> findByAddressContaining(String city, String district);
+    List<Trashcan> findByAddressContainingAndAddressContaining(String city, String district);
 }

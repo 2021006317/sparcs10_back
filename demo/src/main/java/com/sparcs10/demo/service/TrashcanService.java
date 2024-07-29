@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 public class TrashcanService {
     private final TrashcanRepository trashcanRepository;
 
-    @Value("${NAVER_CLIENT_ID}")
+    @Value("${spring.naver.client-id}")
     private String NAVER_CLEINT_ID;
 
-    @Value("${NAVER_CLIENT_SECRET}")
+    @Value("${spring.naver.client-secret}")
     private String NAVER_CLIENT_SECRET;
 
     public List<TrashcanDTO> list() {
@@ -57,19 +57,13 @@ public class TrashcanService {
         * 5. 가장 가까운 쓰레기통을 반환한다.
         * 6. 만약 쓰레기통이 없다면 null을 반환한다.
          */
-        String address = null;
-        try {
-            address = convertCordToGeo(currentLatitude, currentLongitude);
-        } catch (JsonProcessingException e) {
-            return null;
-        }
-
+        String address = convertCordToGeo(currentLatitude, currentLongitude);
         String[] addressArr = address.split(" "); // 이게 공백으로 나눠지는게 맞는지 확인해야함.
         String city = addressArr[0];
         String district = addressArr[1];
         List<TrashcanDTO> trashcanList = null;
 
-        trashcanList = trashcanRepository.findByAddressContaining(city, district).stream()
+        trashcanList = trashcanRepository.findByAddressContainingAndAddressContaining(city, district).stream()
                 .map(TrashcanDTO::fromEntity)
                 .collect(Collectors.toList());
         if (trashcanList.isEmpty()) {
@@ -104,7 +98,7 @@ public class TrashcanService {
         return nearestTrashcan;
     }
 
-    public List<String> convertGeoToCord(String address) throws JsonProcessingException {
+    public List<String> convertGeoToCord(String address) {
         // curl -G "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode" \
         //    --data-urlencode "query={주소}" \
         //    --data-urlencode "coordinate={검색_중심_좌표}" \
@@ -128,7 +122,12 @@ public class TrashcanService {
         ResponseEntity<String> result = restTemplate.exchange(req, String.class);
         String convertResult = result.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
-        CordRoot cordRoot = objectMapper.readValue(convertResult, CordRoot.class);
+        CordRoot cordRoot = null;
+        try {
+            cordRoot = objectMapper.readValue(convertResult, CordRoot.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         String latitude = cordRoot.getAddresses()[0].getY();
         String longitude = cordRoot.getAddresses()[0].getX();
 
@@ -136,7 +135,7 @@ public class TrashcanService {
 
     }
 
-    public String convertCordToGeo(double latitude, double longitude) throws JsonProcessingException {
+    public String convertCordToGeo(double latitude, double longitude) {
         RestTemplate restTemplate = new RestTemplate();
 
         URI uri = UriComponentsBuilder.newInstance()
@@ -157,7 +156,12 @@ public class TrashcanService {
         ResponseEntity<String> result = restTemplate.exchange(req, String.class);
         String convertResult = result.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
-        GeoRoot geoRoot = objectMapper.readValue(convertResult, GeoRoot.class);
+        GeoRoot geoRoot = null;
+        try{
+            geoRoot = objectMapper.readValue(convertResult, GeoRoot.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         String address = geoRoot.getResults()[0].getRegion().getArea1().getName() + " " +
                 geoRoot.getResults()[0].getRegion().getArea2().getName() + " " +
                 geoRoot.getResults()[0].getRegion().getArea3().getName();
@@ -165,7 +169,7 @@ public class TrashcanService {
         return address;
     }
 
-    public long getDrivingDuration(double startLatitude, double startLongitude, double goalLatitude, double goalLongitude) throws JsonProcessingException {
+    public long getDrivingDuration(double startLatitude, double startLongitude, double goalLatitude, double goalLongitude) {
         RestTemplate restTemplate = new RestTemplate();
 
         // curl "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start={출발지}&goal={목적지}&option={탐색옵션}" \
@@ -190,7 +194,12 @@ public class TrashcanService {
         ResponseEntity<String> result = restTemplate.exchange(req, String.class);
         String convertResult = result.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
-        DrivingRoot root = objectMapper.readValue(convertResult, DrivingRoot.class);
+        DrivingRoot root = null;
+        try{
+            root = objectMapper.readValue(convertResult, DrivingRoot.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         long duration = root.getRoute().getTrafast().get(0).getSummary().getDuration();
 
         return duration;

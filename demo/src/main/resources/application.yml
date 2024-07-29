@@ -7,6 +7,9 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   thymeleaf:
     cache: false
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
 
   # spring data jpa 설정
   jpa:
