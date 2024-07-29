@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,7 +145,7 @@ public class TrashcanService {
 
     }
 
-    public String convertCordToGeo(double latitude, double longitude) {
+    private String convertCordToGeo(double latitude, double longitude) { // area 정보 추출용
         RestTemplate restTemplate = new RestTemplate();
 
         URI uri = UriComponentsBuilder.newInstance()
@@ -152,7 +153,7 @@ public class TrashcanService {
                 .host("naveropenapi.apigw.ntruss.com")
                 .path("/map-reversegeocode/v2/gc")
                 .queryParam("coords", longitude + "," + latitude) // 경도, 위도 순
-                .queryParam("orders", "addr,roadaddr")
+                .queryParam("orders", "roadaddr,addr")
                 .queryParam("output", "json")
                 .build().toUri();
 
@@ -164,6 +165,7 @@ public class TrashcanService {
 
         ResponseEntity<String> result = restTemplate.exchange(req, String.class);
         String convertResult = result.getBody();
+        log.warn(convertResult);
         ObjectMapper objectMapper = new ObjectMapper();
         GeoRoot geoRoot = null;
         try{

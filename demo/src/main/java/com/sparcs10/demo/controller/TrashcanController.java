@@ -7,7 +7,6 @@ import com.sparcs10.demo.service.TrashcanService;
 import com.sparcs10.demo.utils.CustomResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,7 @@ public class TrashcanController {
     @GetMapping("/list")
     public ResponseEntity<CustomResponse<List<TrashcanDTO>>> list() {
         return new ResponseEntity<>(
-                CustomResponse.response(trashcanService.list()),
+                CustomResponse.okresponse(trashcanService.list()),
                 HttpStatus.OK
         );
     }
@@ -31,7 +30,7 @@ public class TrashcanController {
     @PostMapping("/create")
     public ResponseEntity<CustomResponse<TrashcanDTO>> create(@RequestBody @Validated TrashcanCreateRequest request) {
         return new ResponseEntity<>(
-                CustomResponse.response(trashcanService.create(request)),
+                CustomResponse.okresponse(HttpStatus.CREATED, trashcanService.create(request)),
                 HttpStatus.CREATED
         );
     }
@@ -41,12 +40,12 @@ public class TrashcanController {
         TrashcanNearestResDto resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
         if (resDto == null) {
             return new ResponseEntity<>(
-                    CustomResponse.response(HttpStatus.NOT_FOUND, null),
+                    CustomResponse.okresponse(HttpStatus.NOT_FOUND, null),
                     HttpStatus.NOT_FOUND
             );
         } else {
             return new ResponseEntity<>(
-                    CustomResponse.response(resDto),
+                    CustomResponse.okresponse(resDto),
                     HttpStatus.OK
             );
         }
@@ -57,30 +56,30 @@ public class TrashcanController {
         List<Double> cord = trashcanService.convertGeoToCord(address);
         if (cord == null) {
             return new ResponseEntity<>(
-                    CustomResponse.response(HttpStatus.NO_CONTENT, null),
+                    CustomResponse.okresponse(HttpStatus.NO_CONTENT, null),
                     HttpStatus.NO_CONTENT
             );
         } else {
             return new ResponseEntity<>(
-                    CustomResponse.response(cord),
+                    CustomResponse.okresponse(cord),
                     HttpStatus.OK
             );
         }
     }
 
-    @GetMapping("/convert/cord/to/address")
-    public ResponseEntity<CustomResponse<String>> convertCordToAddress(@RequestParam double latitude, @RequestParam double longitude) {
-        String address = trashcanService.convertCordToGeo(latitude, longitude);
-        if (address == null) {
-            return new ResponseEntity<>(
-                    CustomResponse.response(HttpStatus.NO_CONTENT, null),
-                    HttpStatus.NO_CONTENT
-            );
-        } else {
-            return new ResponseEntity<>(
-                    CustomResponse.response(address),
-                    HttpStatus.OK
-            );
-        }
-    }
+//    @GetMapping("/convert/cord/to/address")
+//    public ResponseEntity<CustomResponse<String>> convertCordToAddress(@RequestParam double latitude, @RequestParam double longitude) {
+//        String address = trashcanService.convertCordToGeo(latitude, longitude);
+//        if (address == null) {
+//            return new ResponseEntity<>(
+//                    CustomResponse.okresponse(HttpStatus.NO_CONTENT, null),
+//                    HttpStatus.NO_CONTENT
+//            );
+//        } else {
+//            return new ResponseEntity<>(
+//                    CustomResponse.okresponse(address),
+//                    HttpStatus.OK
+//            );
+//        }
+//    }
 }
