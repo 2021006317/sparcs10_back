@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Getter
 @Table(name = "trashcan")
@@ -21,10 +22,18 @@ public class Trashcan {
     @Column
     private String types; // 쓰레기통 종류. , 로 구분
 
+    @Column
+    private double latitude;
+
+    @Column
+    private double longitude;
+
     @Builder
-    public Trashcan(String address, String types) {
+    public Trashcan(String address, String types, double latitude, double longitude) {
         this.address = address;
         this.types = types;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public static Trashcan fromDTO(TrashcanDTO dto) {

@@ -28,4 +28,11 @@ public class CustomResponse<T>{
     public static <T> CustomResponse<T> response(T data) {
         return new CustomResponse<>(HttpStatus.OK, data);
     }
+
+    public static <T> CustomResponse<T> response(HttpStatus status, T data) {
+        return new CustomResponse<>(
+                HttpStatusCode.valueOf(status.value()),
+                data
+        );
+    }
 }

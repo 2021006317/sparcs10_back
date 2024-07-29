@@ -16,12 +16,16 @@ public class TrashcanDTO {
     private String id;
     private String address;
     private List<String> types;
+    private double latitude;
+    private double longitude;
 
     public static TrashcanDTO fromEntity(Trashcan entity) {
         TrashcanDTO dto = new TrashcanDTO();
         dto.setId(entity.getId());
         dto.setAddress(entity.getAddress());
         dto.setTypes(List.of(entity.getTypes().split(",")));
+        dto.setLatitude(entity.getLatitude());
+        dto.setLongitude(entity.getLongitude());
         return dto;
     }
 }

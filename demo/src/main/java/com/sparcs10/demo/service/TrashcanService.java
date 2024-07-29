@@ -3,6 +3,7 @@ package com.sparcs10.demo.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparcs10.demo.controller.requestDto.TrashcanCreateRequest;
+import com.sparcs10.demo.controller.responseDto.TrashcanNearestResDto;
 import com.sparcs10.demo.dto.TrashcanDTO;
 import com.sparcs10.demo.entity.Trashcan;
 import com.sparcs10.demo.repository.TrashcanRepository;
@@ -10,6 +11,7 @@ import com.sparcs10.demo.utils.naverapi.driving.DrivingRoot;
 import com.sparcs10.demo.utils.naverapi.cordgeo.GeoRoot;
 import com.sparcs10.demo.utils.naverapi.geotocord.CordRoot;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrashcanService {
@@ -39,16 +42,20 @@ public class TrashcanService {
     }
 
     public TrashcanDTO create(TrashcanCreateRequest request) {
+        String address = request.getAddress();
+        List<Double> cord = convertGeoToCord(address);
         List<String> types = List.of(request.getTypes().split("-"));
         Trashcan trashcan = Trashcan.builder()
                 .address(request.getAddress())
                 .types(String.join(",", types))
+                .latitude(cord.get(0))
+                .longitude(cord.get(1))
                 .build();
         trashcanRepository.save(trashcan);
         return TrashcanDTO.fromEntity(trashcan);
     }
 
-    public TrashcanDTO nearestTrashcan(double currentLatitude, double currentLongitude) { // 위도, 경도
+    public TrashcanNearestResDto nearestTrashcan(double currentLatitude, double currentLongitude) { // 위도, 경도
         /*
         * 1. 주어진 위도, 경도를 주소로 변환한다.
         * 2. 주소를 기반으로 같은 시, 구에 있는 쓰레기통을 추린다.
@@ -78,27 +85,26 @@ public class TrashcanService {
         // 임의로 잡아준 것.
         TrashcanDTO nearestTrashcan = trashcanList.get(0);
 
-        List<String> nearestCord = convertGeoToCord(nearestTrashcan.getAddress());
-        String nearestLatitude = nearestCord.get(0);
-        String nearestLongitude = nearestCord.get(1);
-        long minDuration = getDrivingDuration(currentLatitude, currentLongitude, Double.parseDouble(nearestLatitude), Double.parseDouble(nearestLongitude));
+        List<Double> nearestCord = convertGeoToCord(nearestTrashcan.getAddress());
+        Double nearestLatitude = nearestCord.get(0);
+        Double nearestLongitude = nearestCord.get(1);
+        long minDuration = getDrivingDuration(currentLatitude, currentLongitude, nearestLatitude, nearestLongitude);
 
         // 거리 계산
         for (TrashcanDTO trashcan : trashcanList) {
-            List<String> cord = convertGeoToCord(trashcan.getAddress());
-            String trashcanLatitude = cord.get(0);
-            String trashcanLongitude = cord.get(1);
-            long duration = getDrivingDuration(currentLatitude, currentLongitude, Double.parseDouble(trashcanLatitude), Double.parseDouble(trashcanLongitude));
+            List<Double> cord = convertGeoToCord(trashcan.getAddress());
+            Double trashcanLatitude = cord.get(0);
+            Double trashcanLongitude = cord.get(1);
+            long duration = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
             if (duration < minDuration){
                 minDuration = duration;
                 nearestTrashcan = trashcan;
             }
         }
-
-        return nearestTrashcan;
+        return new TrashcanNearestResDto(nearestTrashcan, nearestLatitude, nearestLongitude);
     }
 
-    public List<String> convertGeoToCord(String address) {
+    public List<Double> convertGeoToCord(String address) {
         // curl -G "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode" \
         //    --data-urlencode "query={주소}" \
         //    --data-urlencode "coordinate={검색_중심_좌표}" \
@@ -110,7 +116,7 @@ public class TrashcanService {
                 .scheme("https")
                 .host("naveropenapi.apigw.ntruss.com")
                 .path("/map-geocode/v2/geocode")
-                .queryParam("query", address)
+                .queryParam("query", address).encode()
                 .build().toUri();
 
         RequestEntity<Void> req = RequestEntity.
@@ -126,12 +132,15 @@ public class TrashcanService {
         try {
             cordRoot = objectMapper.readValue(convertResult, CordRoot.class);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("주소 -> 좌표 변환에 실패했습니다.");
+        }
+        if (cordRoot.getAddresses().length == 0) {
+            throw new RuntimeException("해당 주소에 대한 좌표를 찾을 수 없습니다.");
         }
         String latitude = cordRoot.getAddresses()[0].getY();
         String longitude = cordRoot.getAddresses()[0].getX();
 
-        return List.of(latitude, longitude);
+        return List.of(Double.parseDouble(latitude), Double.parseDouble(longitude));
 
     }
 
@@ -160,7 +169,7 @@ public class TrashcanService {
         try{
             geoRoot = objectMapper.readValue(convertResult, GeoRoot.class);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("좌표 -> 주소 변환에 실패했습니다.");
         }
         String address = geoRoot.getResults()[0].getRegion().getArea1().getName() + " " +
                 geoRoot.getResults()[0].getRegion().getArea2().getName() + " " +
@@ -198,7 +207,7 @@ public class TrashcanService {
         try{
             root = objectMapper.readValue(convertResult, DrivingRoot.class);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("거리 계산에 실패했습니다.");
         }
         long duration = root.getRoute().getTrafast().get(0).getSummary().getDuration();
 
