@@ -67,6 +67,14 @@ public class TrashcanController {
         }
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<CustomResponse<TrashcanDTO>> updateLatlng(@RequestParam String trashcanId) {
+        return new ResponseEntity<>(
+                CustomResponse.okresponse(trashcanService.updateLatlng(trashcanId)),
+                HttpStatus.OK
+        );
+    }
+
 //    @GetMapping("/convert/cord/to/address")
 //    public ResponseEntity<CustomResponse<String>> convertCordToAddress(@RequestParam double latitude, @RequestParam double longitude) {
 //        String address = trashcanService.convertCordToGeo(latitude, longitude);

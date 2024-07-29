@@ -23,10 +23,10 @@ public class Trashcan {
     private String types; // 쓰레기통 종류. , 로 구분
 
     @Column
-    private double latitude;
+    private Double latitude;
 
     @Column
-    private double longitude;
+    private Double longitude;
 
     @Builder
     public Trashcan(String address, String types, double latitude, double longitude) {
@@ -49,5 +49,13 @@ public class Trashcan {
 
     public void setTypes(String types) {
         this.types = types;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

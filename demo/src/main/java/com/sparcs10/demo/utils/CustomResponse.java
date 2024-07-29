@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatusCode;
 @AllArgsConstructor
 @JsonPropertyOrder({"statusCode", "message", "data"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 public class CustomResponse<T>{
     // ResponseCode 로 관리
     private HttpStatusCode statusCode;

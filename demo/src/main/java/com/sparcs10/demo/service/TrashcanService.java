@@ -82,27 +82,54 @@ public class TrashcanService {
             return null;
         }
 
-
         // 임의로 잡아준 것.
-        TrashcanDTO nearestTrashcan = trashcanList.get(0);
+        TrashcanDTO nearestTrashcan = null;
+        Double nearestLatitude = Double.MAX_VALUE;
+        Double nearestLongitude = Double.MAX_VALUE;
+        long minDuration = Long.MAX_VALUE;
 
-        List<Double> nearestCord = convertGeoToCord(nearestTrashcan.getAddress());
-        Double nearestLatitude = nearestCord.get(0);
-        Double nearestLongitude = nearestCord.get(1);
-        long minDuration = getDrivingDuration(currentLatitude, currentLongitude, nearestLatitude, nearestLongitude);
+//        List<Double> nearestCord = convertGeoToCord(nearestTrashcan.getAddress());
+//        Double nearestLatitude = nearestCord.get(0);
+//        Double nearestLongitude = nearestCord.get(1);
+//        long minDuration = getDrivingDuration(currentLatitude, currentLongitude, nearestLatitude, nearestLongitude);
 
         // 거리 계산
         for (TrashcanDTO trashcan : trashcanList) {
-            List<Double> cord = convertGeoToCord(trashcan.getAddress());
-            Double trashcanLatitude = cord.get(0);
-            Double trashcanLongitude = cord.get(1);
-            long duration = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
+            long duration = Long.MAX_VALUE;
+            Double trashcanLatitude = 0.0;
+            Double trashcanLongitude = 0.0;
+            try{
+                trashcanLatitude = trashcan.getLatitude();
+                trashcanLongitude = trashcan.getLongitude();
+                duration = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
+            } catch (RuntimeException e) {
+                if (trashcanLatitude != null && trashcanLongitude != null
+                        && trashcanLatitude == currentLatitude
+                        && trashcanLongitude == currentLongitude) {
+                    return new TrashcanNearestResDto(trashcan, trashcanLatitude, trashcanLongitude);
+                } else{
+                    log.warn(trashcan.getAddress());
+                    continue;
+                }
+            }
             if (duration < minDuration){
                 minDuration = duration;
                 nearestTrashcan = trashcan;
+                nearestLatitude = trashcanLatitude;
+                nearestLongitude = trashcanLongitude;
             }
         }
         return new TrashcanNearestResDto(nearestTrashcan, nearestLatitude, nearestLongitude);
+    }
+
+    public TrashcanDTO updateLatlng(String trashcanId) {
+        Trashcan trashcan = trashcanRepository.findById(trashcanId)
+                .orElseThrow(() -> new RuntimeException("해당 쓰레기통을 찾을 수 없습니다."));
+        List<Double> cord = convertGeoToCord(trashcan.getAddress());
+        trashcan.setLatitude(cord.get(0));
+        trashcan.setLongitude(cord.get(1));
+        trashcanRepository.save(trashcan);
+        return TrashcanDTO.fromEntity(trashcan);
     }
 
     public List<Double> convertGeoToCord(String address) {
@@ -165,7 +192,6 @@ public class TrashcanService {
 
         ResponseEntity<String> result = restTemplate.exchange(req, String.class);
         String convertResult = result.getBody();
-        log.warn(convertResult);
         ObjectMapper objectMapper = new ObjectMapper();
         GeoRoot geoRoot = null;
         try{

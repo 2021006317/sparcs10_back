@@ -12,7 +12,4 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Trafast {
     private Summary summary;
-    private List<List<Double>> path;
-    private List<Section> section;
-    private List<Guide> guide;
 }
