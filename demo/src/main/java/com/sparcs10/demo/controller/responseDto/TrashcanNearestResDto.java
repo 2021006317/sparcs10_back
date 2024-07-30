@@ -11,17 +11,27 @@ import java.util.List;
 @Getter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 public class TrashcanNearestResDto {
     private String address;
     private List<String> types;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
+    private Long distance;
+    private Long duration;
 
     public TrashcanNearestResDto(TrashcanDTO dto, double latitude, double longitude) {
         this.address = dto.getAddress();
         this.types = dto.getTypes();
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public TrashcanNearestResDto(TrashcanDTO dto, double latitude, double longitude, Long distance, Long duration) {
+        this.address = dto.getAddress();
+        this.types = dto.getTypes();
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.distance = distance;
+        this.duration = duration;
     }
 }

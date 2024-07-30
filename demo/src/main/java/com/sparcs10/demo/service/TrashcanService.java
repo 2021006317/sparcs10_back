@@ -22,6 +22,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -56,7 +58,7 @@ public class TrashcanService {
         return TrashcanDTO.fromEntity(trashcan);
     }
 
-    public TrashcanNearestResDto nearestTrashcan(double currentLatitude, double currentLongitude) { // 위도, 경도
+    public List<TrashcanNearestResDto> nearestTrashcan(double currentLatitude, double currentLongitude) { // 위도, 경도
         /*
         * 1. 주어진 위도, 경도를 주소로 변환한다.
         * 2. 주소를 기반으로 같은 시, 구에 있는 쓰레기통을 추린다.
@@ -82,44 +84,33 @@ public class TrashcanService {
             return null;
         }
 
-        // 임의로 잡아준 것.
-        TrashcanDTO nearestTrashcan = null;
-        Double nearestLatitude = Double.MAX_VALUE;
-        Double nearestLongitude = Double.MAX_VALUE;
-        long minDuration = Long.MAX_VALUE;
+       //  TrashcanNearestResDto로 변환 후 거리순 정렬
+        List<TrashcanNearestResDto> driveResList = trashcanList.stream()
+                .map(trashcan -> {
+                    List<Double> cord = null;
+                    try{
+                        cord = convertGeoToCord(trashcan.getAddress());
+                    } catch (RuntimeException e) {
+                        return null;
+                    }
+                    Double trashcanLatitude = cord.get(0);
+                    Double trashcanLongitude = cord.get(1);
 
-//        List<Double> nearestCord = convertGeoToCord(nearestTrashcan.getAddress());
-//        Double nearestLatitude = nearestCord.get(0);
-//        Double nearestLongitude = nearestCord.get(1);
-//        long minDuration = getDrivingDuration(currentLatitude, currentLongitude, nearestLatitude, nearestLongitude);
+                    Map<String, Long> driveRes = null;
+                    try{
+                        driveRes = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
+                    } catch (RuntimeException e) {
+                        return null;
+                    }
+                    return new TrashcanNearestResDto(trashcan, trashcanLatitude, trashcanLongitude, driveRes.get("distance"), driveRes.get("duration"));
+                }).toList();
 
-        // 거리 계산
-        for (TrashcanDTO trashcan : trashcanList) {
-            long duration = Long.MAX_VALUE;
-            Double trashcanLatitude = 0.0;
-            Double trashcanLongitude = 0.0;
-            try{
-                trashcanLatitude = trashcan.getLatitude();
-                trashcanLongitude = trashcan.getLongitude();
-                duration = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
-            } catch (RuntimeException e) {
-                if (trashcanLatitude != null && trashcanLongitude != null
-                        && trashcanLatitude == currentLatitude
-                        && trashcanLongitude == currentLongitude) {
-                    return new TrashcanNearestResDto(trashcan, trashcanLatitude, trashcanLongitude);
-                } else{
-                    log.warn(trashcan.getAddress());
-                    continue;
-                }
-            }
-            if (duration < minDuration){
-                minDuration = duration;
-                nearestTrashcan = trashcan;
-                nearestLatitude = trashcanLatitude;
-                nearestLongitude = trashcanLongitude;
-            }
-        }
-        return new TrashcanNearestResDto(nearestTrashcan, nearestLatitude, nearestLongitude);
+        driveResList = driveResList.stream()
+                .filter(Objects::nonNull)
+                .sorted((a, b) -> (int) (a.getDuration() - b.getDuration()))
+                .collect(Collectors.toList());
+
+        return driveResList.subList(0, Math.min(4, driveResList.size()));
     }
 
     public TrashcanDTO updateLatlng(String trashcanId) {
@@ -206,7 +197,7 @@ public class TrashcanService {
         return address;
     }
 
-    public long getDrivingDuration(double startLatitude, double startLongitude, double goalLatitude, double goalLongitude) {
+    public Map<String, Long> getDrivingDuration(double startLatitude, double startLongitude, double goalLatitude, double goalLongitude) {
         RestTemplate restTemplate = new RestTemplate();
 
         // curl "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start={출발지}&goal={목적지}&option={탐색옵션}" \
@@ -237,8 +228,9 @@ public class TrashcanService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("거리 계산에 실패했습니다.");
         }
+        long distance = root.getRoute().getTrafast().get(0).getSummary().getDistance();
         long duration = root.getRoute().getTrafast().get(0).getSummary().getDuration();
 
-        return duration;
+        return Map.of("distance", distance, "duration", duration);
     }
 }

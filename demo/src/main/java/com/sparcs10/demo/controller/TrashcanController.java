@@ -36,8 +36,8 @@ public class TrashcanController {
     }
 
     @GetMapping("/nearest")
-    public ResponseEntity<CustomResponse<TrashcanNearestResDto>> nearestTrashcan(@RequestParam double currentLatitude, @RequestParam double currentLongitude) {
-        TrashcanNearestResDto resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
+    public ResponseEntity<CustomResponse<List<TrashcanNearestResDto>>> nearestTrashcan(@RequestParam double currentLatitude, @RequestParam double currentLongitude) {
+        List<TrashcanNearestResDto> resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
         if (resDto == null) {
             return new ResponseEntity<>(
                     CustomResponse.okresponse(HttpStatus.NOT_FOUND, null),
