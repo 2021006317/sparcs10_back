@@ -53,11 +53,11 @@ public class TrashcanController {
     }
 
     @GetMapping("/nearest")
-    public ResponseEntity<CustomResponse<List<TrashcanNearestResDto>>> nearestTrashcan(@RequestParam Double currentLatitude, @RequestParam Double currentLongitude) {
+    public ResponseEntity<CustomResponse> nearestTrashcan(@RequestParam Double currentLatitude, @RequestParam Double currentLongitude) {
         List<TrashcanNearestResDto> resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
         if (resDto == null) {
             return new ResponseEntity<>(
-                    CustomResponse.response(HttpStatus.NOT_FOUND, null),
+                    CustomResponse.response(HttpStatus.NOT_FOUND, "가까운 쓰레기통이 없습니다."),
                     HttpStatus.NOT_FOUND
             );
         } else {
