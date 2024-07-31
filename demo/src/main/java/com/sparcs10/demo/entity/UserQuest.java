@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -26,6 +28,9 @@ public class UserQuest {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "status")
     private QuestStatus status; // enum으로 관리
+
+    @Column
+    private Date successDate;
 
     @Builder
     public UserQuest(User user, Quest quest, QuestStatus status) {

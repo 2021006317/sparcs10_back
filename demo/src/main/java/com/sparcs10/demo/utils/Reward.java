@@ -9,10 +9,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Reward {
     private int coin;
-    private int gem;
+    private int leaf;
 
-    public Reward(int coin, int gem) {
+    public Reward(int coin, int leaf) {
         this.coin = coin;
-        this.gem = gem;
+        this.leaf = leaf;
     }
 }

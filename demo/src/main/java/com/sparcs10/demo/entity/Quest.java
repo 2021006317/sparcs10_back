@@ -28,7 +28,7 @@ public class Quest {
     private int rewardCoin;
 
     @Column
-    private int rewardGem;
+    private int rewardLeaf;
 
     @Column
     private String type;
@@ -38,7 +38,7 @@ public class Quest {
         this.content = content;
         this.solution = solution;
         this.rewardCoin = reward.getCoin();
-        this.rewardGem = reward.getGem();
+        this.rewardLeaf = reward.getLeaf();
         this.type = type;
     }
 
@@ -47,7 +47,7 @@ public class Quest {
         this.content = request.getContent();
         this.solution = request.getSolution();
         this.rewardCoin = request.getReward().getCoin();
-        this.rewardGem = request.getReward().getGem();
+        this.rewardLeaf = request.getReward().getLeaf();
         this.type = request.getType();
     }
 }

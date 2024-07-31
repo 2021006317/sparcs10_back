@@ -18,7 +18,10 @@ public class User {
     @Column
     private String password;
 
-    @OneToOne
-    private Tree tree;
+    @Column
+    private Long coin;
+
+    @Column
+    private Long leaf;
 
 }
