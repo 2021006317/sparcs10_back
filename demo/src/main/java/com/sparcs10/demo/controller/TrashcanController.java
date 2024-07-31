@@ -1,5 +1,6 @@
 package com.sparcs10.demo.controller;
 
+import com.sparcs10.demo.controller.requestDto.CreateLatlngReq;
 import com.sparcs10.demo.controller.requestDto.TrashcanCreateRequest;
 import com.sparcs10.demo.controller.responseDto.TrashcanNearestResDto;
 import com.sparcs10.demo.dto.TrashcanDTO;
@@ -20,9 +21,16 @@ public class TrashcanController {
     private final TrashcanService trashcanService;
 
     @GetMapping("/list")
-    public ResponseEntity<CustomResponse<List<TrashcanDTO>>> list() {
+    public ResponseEntity<CustomResponse<List<TrashcanDTO>>> list(@RequestParam(required = false) Double currentLatitude, @RequestParam(required = false) Double currentLongitude) {
+        if (currentLatitude != null && currentLongitude != null) {
+            return new ResponseEntity<>(
+                    CustomResponse.okresponse(trashcanService.list(currentLatitude, currentLongitude)),
+                    HttpStatus.OK
+            );
+        }
+
         return new ResponseEntity<>(
-                CustomResponse.okresponse(trashcanService.list()),
+                CustomResponse.okresponse(trashcanService.list(null, null)),
                 HttpStatus.OK
         );
     }
@@ -35,8 +43,17 @@ public class TrashcanController {
         );
     }
 
+
+    @PostMapping("/create/latlng")
+    public ResponseEntity<CustomResponse<TrashcanDTO>> create(@RequestBody @Validated CreateLatlngReq request) {
+        return new ResponseEntity<>(
+                CustomResponse.okresponse(HttpStatus.CREATED, trashcanService.createLatlng(request)),
+                HttpStatus.CREATED
+        );
+    }
+
     @GetMapping("/nearest")
-    public ResponseEntity<CustomResponse<List<TrashcanNearestResDto>>> nearestTrashcan(@RequestParam double currentLatitude, @RequestParam double currentLongitude) {
+    public ResponseEntity<CustomResponse<List<TrashcanNearestResDto>>> nearestTrashcan(@RequestParam Double currentLatitude, @RequestParam Double currentLongitude) {
         List<TrashcanNearestResDto> resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
         if (resDto == null) {
             return new ResponseEntity<>(

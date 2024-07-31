@@ -26,7 +26,8 @@ public class TrashcanDTO {
         TrashcanDTO dto = new TrashcanDTO();
         dto.setId(entity.getId());
         dto.setAddress(entity.getAddress());
-        dto.setTypes(List.of(entity.getTypes().split(",")));
+        if (entity.getTypes() != null)
+            dto.setTypes(List.of(entity.getTypes().split(",")));
         dto.setLatitude(entity.getLatitude());
         dto.setLongitude(entity.getLongitude());
         return dto;

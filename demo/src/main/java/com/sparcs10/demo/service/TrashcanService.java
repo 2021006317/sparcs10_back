@@ -2,6 +2,7 @@ package com.sparcs10.demo.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparcs10.demo.controller.requestDto.CreateLatlngReq;
 import com.sparcs10.demo.controller.requestDto.TrashcanCreateRequest;
 import com.sparcs10.demo.controller.responseDto.TrashcanNearestResDto;
 import com.sparcs10.demo.dto.TrashcanDTO;
@@ -38,10 +39,30 @@ public class TrashcanService {
     @Value("${spring.naver.client-secret}")
     private String NAVER_CLIENT_SECRET;
 
-    public List<TrashcanDTO> list() {
-        return trashcanRepository.findAll().stream()
-                .map(TrashcanDTO::fromEntity)
-                .collect(Collectors.toList());
+    public List<TrashcanDTO> list(Double currentLatitude, Double currentLongitude) {
+        if (currentLatitude != null && currentLongitude != null) {
+            String address = convertCordToGeo(currentLatitude, currentLongitude);
+            String[] addressArr = address.split(" "); // 이게 공백으로 나눠지는게 맞는지 확인해야함.
+            String city = addressArr[0];
+            String district = addressArr[1];
+            List<TrashcanDTO> trashcanList = null;
+
+            trashcanList = trashcanRepository.findByAddressContainingAndAddressContaining(city, district).stream()
+                    .map(TrashcanDTO::fromEntity)
+                    .collect(Collectors.toList());
+            if (trashcanList.isEmpty()) {
+                trashcanList = trashcanRepository.findByAddressContaining(city).stream()
+                        .map(TrashcanDTO::fromEntity)
+                        .collect(Collectors.toList());
+            } if (trashcanList.isEmpty()) {
+                return null;
+            }
+            return trashcanList;
+        } else{
+            return trashcanRepository.findAll().stream()
+                    .map(TrashcanDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
     }
 
     public TrashcanDTO create(TrashcanCreateRequest request) {
@@ -53,6 +74,16 @@ public class TrashcanService {
                 .types(String.join(",", types))
                 .latitude(cord.get(0))
                 .longitude(cord.get(1))
+                .build();
+        trashcanRepository.save(trashcan);
+        return TrashcanDTO.fromEntity(trashcan);
+    }
+
+    public TrashcanDTO createLatlng(CreateLatlngReq request) {
+        Trashcan trashcan = Trashcan.builder()
+                .address(request.getAddress())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
                 .build();
         trashcanRepository.save(trashcan);
         return TrashcanDTO.fromEntity(trashcan);
