@@ -9,13 +9,13 @@ import com.sparcs10.demo.repository.QuestRepository;
 import com.sparcs10.demo.repository.UserQuestRepository;
 import com.sparcs10.demo.repository.UserRepository;
 import com.sparcs10.demo.utils.QuestStatus;
-import com.sparcs10.demo.utils.Reward;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,7 +47,14 @@ public class UserQuestService {
         return UserQuestDto.fromEntity(userQuest);
     }
 
-    public int todayProgress(String userName) {
+    public int todayProgressCount(String userName) {
         return userQuestRepository.countAllByUser_UsernameAndSuccessDate(userName, LocalDate.now());
+    }
+
+    public List<UserQuestDto> todayProgressList(String userName) {
+        List<UserQuest> userQuests = userQuestRepository.findAllByUser_UsernameAndSuccessDate(userName, LocalDate.now());
+        return userQuests.stream()
+                .map(UserQuestDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }

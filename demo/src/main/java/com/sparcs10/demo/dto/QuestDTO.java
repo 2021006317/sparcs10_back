@@ -23,7 +23,9 @@ public class QuestDTO {
         dto.setId(entity.getId());
         dto.setContent(entity.getContent());
         dto.setSolution(entity.getSolution());
-        dto.setReward(new Reward(entity.getRewardCoin(), entity.getRewardLeaf()));
+        int rewardCoin = entity.getRewardCoin() == null ? 0 : entity.getRewardCoin();
+        int rewardLeaf = entity.getRewardLeaf() == null ? 0 : entity.getRewardLeaf();
+        dto.setReward(new Reward(rewardCoin, rewardLeaf));
         dto.setType(entity.getType());
         return dto;
     }

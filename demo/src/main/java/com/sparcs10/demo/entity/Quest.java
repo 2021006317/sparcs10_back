@@ -24,11 +24,11 @@ public class Quest {
     @Column
     private String solution;
 
-    @Column
-    private int rewardCoin;
+    @Column()
+    private Integer rewardCoin;
 
     @Column
-    private int rewardLeaf;
+    private Integer rewardLeaf;
 
     @Column
     private String type;
@@ -43,6 +43,8 @@ public class Quest {
     }
 
     public Reward getReward() {
+        int rewardCoin = this.rewardCoin == null ? 0 : this.rewardCoin;
+        int rewardLeaf = this.rewardLeaf == null ? 0 : this.rewardLeaf;
         return new Reward(rewardCoin, rewardLeaf);
     }
 
