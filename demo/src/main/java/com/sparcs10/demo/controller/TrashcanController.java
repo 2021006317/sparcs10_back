@@ -57,8 +57,8 @@ public class TrashcanController {
         List<TrashcanNearestResDto> resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
         if (resDto == null) {
             return new ResponseEntity<>(
-                    CustomResponse.response(HttpStatus.NOT_FOUND, "가까운 쓰레기통이 없습니다."),
-                    HttpStatus.NOT_FOUND
+                    CustomResponse.response(HttpStatus.NO_CONTENT, "가까운 쓰레기통이 없습니다."),
+                    HttpStatus.NO_CONTENT
             );
         } else {
             return new ResponseEntity<>(
