@@ -100,9 +100,11 @@ public class TrashcanService {
          */
         String address = convertCordToGeo(currentLatitude, currentLongitude);
         String[] addressArr = address.split(" "); // 이게 공백으로 나눠지는게 맞는지 확인해야함.
-        String city = addressArr[0];
+        String city = addressArr[0].substring(0, 2);
         String district = addressArr[1];
         List<TrashcanDTO> trashcanList = null;
+
+        log.warn("city: " + city + " district: " + district);
 
         trashcanList = trashcanRepository.findByAddressContainingAndAddressContaining(city, district).stream()
                 .map(TrashcanDTO::fromEntity)
@@ -118,23 +120,24 @@ public class TrashcanService {
        //  TrashcanNearestResDto로 변환 후 거리순 정렬
         List<TrashcanNearestResDto> driveResList = trashcanList.stream()
                 .map(trashcan -> {
-                    List<Double> cord = null;
                     try{
-                        cord = convertGeoToCord(trashcan.getAddress());
-                    } catch (RuntimeException e) {
+                        Double trashcanLatitude = trashcan.getLatitude();
+                        Double trashcanLongitude = trashcan.getLongitude();
+                        Map<String, Long> driveRes = null;
+                        try{
+                            driveRes = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
+                        } catch (RuntimeException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                        return new TrashcanNearestResDto(trashcan, trashcanLatitude, trashcanLongitude, driveRes.get("distance"), driveRes.get("duration"));
+                    } catch (NullPointerException e) {
                         return null;
                     }
-                    Double trashcanLatitude = cord.get(0);
-                    Double trashcanLongitude = cord.get(1);
 
-                    Map<String, Long> driveRes = null;
-                    try{
-                        driveRes = getDrivingDuration(currentLatitude, currentLongitude, trashcanLatitude, trashcanLongitude);
-                    } catch (RuntimeException e) {
-                        return null;
-                    }
-                    return new TrashcanNearestResDto(trashcan, trashcanLatitude, trashcanLongitude, driveRes.get("distance"), driveRes.get("duration"));
                 }).toList();
+
+//        log.warn(driveResList.toString());
 
         driveResList = driveResList.stream()
                 .filter(Objects::nonNull)
