@@ -25,7 +25,7 @@ public class QuestService {
     }
 
     public List<QuestDTO> dailyList() {
-        return questRepository.findByType("daily").stream()
+        return questRepository.findAllByType("daily").stream()
                 .map(QuestDTO::fromEntity)
                 .collect(Collectors.toList());
     }

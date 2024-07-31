@@ -25,13 +25,6 @@ public class QuestController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/daily/list")
-    public ResponseEntity<CustomResponse<List<QuestDTO>>> dailyList() {
-        return new ResponseEntity<>(
-                CustomResponse.okresponse(questService.dailyList()),
-                HttpStatus.OK);
-    }
-
     @GetMapping("/{id}/solution")
     public ResponseEntity<CustomResponse<String>> dailySolution(@PathVariable String id) {
         return new ResponseEntity<>(

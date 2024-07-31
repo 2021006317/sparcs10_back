@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -30,12 +31,15 @@ public class UserQuest {
     private QuestStatus status; // enum으로 관리
 
     @Column
-    private Date successDate;
+    private LocalDate successDate;
 
     @Builder
-    public UserQuest(User user, Quest quest, QuestStatus status) {
+    public UserQuest(User user, Quest quest, QuestStatus status, LocalDate today) {
         this.user = user;
         this.quest = quest;
         this.status = status;
+        if (status == QuestStatus.COMPLETED) {
+            this.successDate = today;
+        }
     }
 }

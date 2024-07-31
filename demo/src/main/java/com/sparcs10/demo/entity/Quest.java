@@ -42,6 +42,10 @@ public class Quest {
         this.type = type;
     }
 
+    public Reward getReward() {
+        return new Reward(rewardCoin, rewardLeaf);
+    }
+
     @Builder
     public Quest(QuestCreateRequest request) {
         this.content = request.getContent();

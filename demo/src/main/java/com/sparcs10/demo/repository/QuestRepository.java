@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, String> {
-    List<Quest> findByType(String type);
+    List<Quest> findAllByType(String type);
+    Quest findFirstByType(String type);
+    Quest findByContent(String content);
 }
