@@ -24,11 +24,11 @@ public class CustomResponse<T>{
         this.data = data;
     }
 
-    public static <T> CustomResponse<T> okresponse(T data) {
+    public static <T> CustomResponse<T> response(T data) {
         return new CustomResponse<>(HttpStatus.OK, data);
     }
 
-    public static <T> CustomResponse<T> okresponse(HttpStatus status, T data) {
+    public static <T> CustomResponse<T> response(HttpStatus status, T data) {
         return new CustomResponse<>(
                 HttpStatusCode.valueOf(status.value()),
                 data

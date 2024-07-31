@@ -24,13 +24,13 @@ public class TrashcanController {
     public ResponseEntity<CustomResponse<List<TrashcanDTO>>> list(@RequestParam(required = false) Double currentLatitude, @RequestParam(required = false) Double currentLongitude) {
         if (currentLatitude != null && currentLongitude != null) {
             return new ResponseEntity<>(
-                    CustomResponse.okresponse(trashcanService.list(currentLatitude, currentLongitude)),
+                    CustomResponse.response(trashcanService.list(currentLatitude, currentLongitude)),
                     HttpStatus.OK
             );
         }
 
         return new ResponseEntity<>(
-                CustomResponse.okresponse(trashcanService.list(null, null)),
+                CustomResponse.response(trashcanService.list(null, null)),
                 HttpStatus.OK
         );
     }
@@ -38,7 +38,7 @@ public class TrashcanController {
     @PostMapping("/create")
     public ResponseEntity<CustomResponse<TrashcanDTO>> create(@RequestBody @Validated TrashcanCreateRequest request) {
         return new ResponseEntity<>(
-                CustomResponse.okresponse(HttpStatus.CREATED, trashcanService.create(request)),
+                CustomResponse.response(HttpStatus.CREATED, trashcanService.create(request)),
                 HttpStatus.CREATED
         );
     }
@@ -47,7 +47,7 @@ public class TrashcanController {
     @PostMapping("/create/latlng")
     public ResponseEntity<CustomResponse<TrashcanDTO>> create(@RequestBody @Validated CreateLatlngReq request) {
         return new ResponseEntity<>(
-                CustomResponse.okresponse(HttpStatus.CREATED, trashcanService.createLatlng(request)),
+                CustomResponse.response(HttpStatus.CREATED, trashcanService.createLatlng(request)),
                 HttpStatus.CREATED
         );
     }
@@ -57,12 +57,12 @@ public class TrashcanController {
         List<TrashcanNearestResDto> resDto = trashcanService.nearestTrashcan(currentLatitude, currentLongitude);
         if (resDto == null) {
             return new ResponseEntity<>(
-                    CustomResponse.okresponse(HttpStatus.NOT_FOUND, null),
+                    CustomResponse.response(HttpStatus.NOT_FOUND, null),
                     HttpStatus.NOT_FOUND
             );
         } else {
             return new ResponseEntity<>(
-                    CustomResponse.okresponse(resDto),
+                    CustomResponse.response(resDto),
                     HttpStatus.OK
             );
         }
@@ -73,12 +73,12 @@ public class TrashcanController {
         List<Double> cord = trashcanService.convertGeoToCord(address);
         if (cord == null) {
             return new ResponseEntity<>(
-                    CustomResponse.okresponse(HttpStatus.NO_CONTENT, null),
+                    CustomResponse.response(HttpStatus.NO_CONTENT, null),
                     HttpStatus.NO_CONTENT
             );
         } else {
             return new ResponseEntity<>(
-                    CustomResponse.okresponse(cord),
+                    CustomResponse.response(cord),
                     HttpStatus.OK
             );
         }
@@ -87,7 +87,7 @@ public class TrashcanController {
     @PutMapping("/update")
     public ResponseEntity<CustomResponse<TrashcanDTO>> updateLatlng(@RequestParam String trashcanId) {
         return new ResponseEntity<>(
-                CustomResponse.okresponse(trashcanService.updateLatlng(trashcanId)),
+                CustomResponse.response(trashcanService.updateLatlng(trashcanId)),
                 HttpStatus.OK
         );
     }

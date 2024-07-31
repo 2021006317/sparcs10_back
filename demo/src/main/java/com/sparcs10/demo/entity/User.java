@@ -31,4 +31,20 @@ public class User {
         return new Reward(coinToReturn, leafToReturn);
     }
 
+    public long getCoin(){
+        return coin == null ? 0 : coin;
+    }
+
+    public long getLeaf(){
+        return leaf == null ? 0 : leaf;
+    }
+
+    public void setCoin(Long coin){
+        this.coin = coin;
+    }
+
+    public void setLeaf(Long leaf){
+        this.leaf = leaf;
+    }
+
 }

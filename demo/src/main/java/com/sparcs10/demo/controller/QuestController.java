@@ -21,21 +21,21 @@ public class QuestController {
     @GetMapping("/list")
     public ResponseEntity<CustomResponse<List<QuestDTO>>> list() {
         return new ResponseEntity<>(
-                CustomResponse.okresponse(questService.list()),
+                CustomResponse.response(questService.list()),
                 HttpStatus.OK);
     }
 
     @GetMapping("/{id}/solution")
     public ResponseEntity<CustomResponse<String>> dailySolution(@PathVariable String id) {
         return new ResponseEntity<>(
-                CustomResponse.okresponse(questService.dailySolution(id)),
+                CustomResponse.response(questService.dailySolution(id)),
                 HttpStatus.OK);
     }
 
     @PostMapping("/create")
     public ResponseEntity<CustomResponse<QuestDTO>> create(@RequestBody @Validated QuestCreateRequest request) {
         return new ResponseEntity<>(
-                CustomResponse.okresponse(questService.create(request)),
+                CustomResponse.response(questService.create(request)),
                 HttpStatus.CREATED);
     }
 }

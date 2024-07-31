@@ -20,21 +20,21 @@ public class UserQuestController {
     @PostMapping("/success")
     public ResponseEntity<CustomResponse<UserQuestDto>> success(@RequestBody @Validated SuccessQuestRequest request) {
         return ResponseEntity.ok(
-            CustomResponse.okresponse(userQuestService.success(request))
+            CustomResponse.response(userQuestService.success(request))
         );
     }
 
     @GetMapping("/today-progress/count")
     public ResponseEntity<CustomResponse<Integer>> todayProgress(@RequestParam String userName) {
         return ResponseEntity.ok(
-            CustomResponse.okresponse(userQuestService.todayProgressCount(userName))
+            CustomResponse.response(userQuestService.todayProgressCount(userName))
         );
     }
 
     @GetMapping("/today-progress/list")
     public ResponseEntity<CustomResponse<List<UserQuestDto>>> todayProgressList(@RequestParam String userName) {
         return ResponseEntity.ok(
-            CustomResponse.okresponse(userQuestService.todayProgressList(userName))
+            CustomResponse.response(userQuestService.todayProgressList(userName))
         );
     }
 }
